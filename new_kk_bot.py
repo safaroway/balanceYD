@@ -7,8 +7,6 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.types import ParseMode, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils import executor
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import requests
 import json
 import random
@@ -17,17 +15,6 @@ import time
 from time import sleep
 from balance import balance_check
 
-# Входные данные
-AgencyClientsURL = 'https://api.direct.yandex.com/json/v5/agencyclients'
-BalanceURL = 'https://api.direct.yandex.ru/live/v4/json/'
-ReportsURL = 'https://api.direct.yandex.com/json/v5/reports'
-token = 'y0_AgAAAABetOqeAAjHbQAAAADgRQWkHGAKy-MnTbSiGZUzdlZdupsIyts'
-
-# Заголовки для запросов
-headers = {
-    "Authorization": "Bearer " + token,
-    "Accept-Language": "ru"
-}
 
 bot_token = '6474466927:AAHCASWQCdJ0Yg_1omdPRDsWw43LtnIpW9E'
 bot = Bot(token=bot_token)
@@ -41,87 +28,32 @@ async def start(message: types.Message):
 
 @dp.message_handler(Command("start"))
 async def start_command(message: types.Message):
-    # Получаем user_id и имя пользователя
-    user_id = message.from_user.id
-    username = message.from_user.username
+    await start(message)
 
 @dp.message_handler(text="Баланс")
 async def balance_command(message: types.Message):
-    # Получаем user_id и имя пользователя
-    user_id = message.from_user.id
-    username = message.from_user.username
 
     # Отправляем пользователю сообщение о том, что операция может занять время
     info_message = await message.answer("Это может занять некоторое время. Пожалуйста, подождите...")
 
-    # Записываем данные пользователя, если это новый пользователь
-    with open(user_data_file, 'r') as file:
-        existing_users = file.read()
-        if f'user_id: {user_id}, username: {username}' not in existing_users:
-            save_user_data(user_id, username)
+    # Входные данные
+    AgencyClientsURL = 'https://api.direct.yandex.com/json/v5/agencyclients'
+    BalanceURL = 'https://api.direct.yandex.ru/live/v4/json/'
+    ReportsURL = 'https://api.direct.yandex.com/json/v5/reports'
+    token = 'y0_AgAAAABetOqeAAjHbQAAAADgRQWkHGAKy-MnTbSiGZUzdlZdupsIyts'
 
+    # Заголовки для запросов
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Accept-Language": "ru"
+    }
 
-    # Вставьте сюда код для работы с балансом в Google Sheets
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    credentials = ServiceAccountCredentials.from_json_keyfile_name('custom-curve-330216-40ae6013a31d.json', scope)
+    # Вызываем функцию balance_check для получения информации о балансе
+    balance_info = balance_check()
 
-    # Авторизуемся и открываем таблицу
-    gc = gspread.authorize(credentials)
-    spreadsheet = gc.open('Баланс KK')
-    worksheet = spreadsheet.worksheet('schedule')
-
-    # Вставляем формулу в ячейки
-    worksheet.update('B2', '')
-    worksheet.update('B2', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B3', '')
-    worksheet.update('B3', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B4', '')
-    worksheet.update('B4', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B5', '')
-    worksheet.update('B5', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B6', '')
-    worksheet.update('B6', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B7', '')
-    worksheet.update('B7', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B8', '')
-    worksheet.update('B8', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B9', '')
-    worksheet.update('B9', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B10', '')
-    worksheet.update('B10', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B11', '')
-    worksheet.update('B11', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B12', '')
-    worksheet.update('B12', 'y0_AgAAAABl7E-XAAjHbQAAAADhcatO3Ak85rsRSfqNL97BWOyBKpXsPoE')
-    worksheet.update('B13', '')
-    worksheet.update('B13', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B14', '')
-    worksheet.update('B14', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B15', '')
-    worksheet.update('B15', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B16', '')
-    worksheet.update('B16', 'y0_AgAAAABl7E-XAAjHbQAAAADhcatO3Ak85rsRSfqNL97BWOyBKpXsPoE')
-    worksheet.update('B17', '')
-    worksheet.update('B17', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B18', '')
-    worksheet.update('B18', 'y0_AgAAAAA2LZCOAAjHbQAAAADgXzNmMrHHkBuaQVSGVQLqG72g0Z_IfIw')
-    worksheet.update('B19', '')
-    worksheet.update('B19', 'y0_AgAAAABl7E-XAAjHbQAAAADhcatO3Ak85rsRSfqNL97BWOyBKpXsPoE')
-    worksheet.update('B20', '')
-    worksheet.update('B20', 'y0_AgAAAABl7E-XAAjHbQAAAADhcatO3Ak85rsRSfqNL97BWOyBKpXsPoE')
-    worksheet.update('B21', '')
-    worksheet.update('B21', 'y0_AgAAAABl7E-XAAjHbQAAAADhcatO3Ak85rsRSfqNL97BWOyBKpXsPoE')
-
-    # Получаем значения ячеек в столбце J, начиная со второй строки
-    values = worksheet.col_values(10)[1:]
-
-    response = "\n"
-    for value in values:
-        message_text = value.strip()  # Удаляем лишние пробелы по краям значения
-        if "баланс" in message_text.lower():  # Проверяем, содержит ли строка слово "баланс"
-            response += f"<b>{message_text.split(':')[0]}</b>: {message_text.split(':')[1]}\n"
-
-    await message.answer(response, parse_mode=ParseMode.HTML)
+    # Отправляем результат пользователю
+    # Теперь balance_info - это список, его можно безопасно объединять в строку
+    await message.answer("\n".join(balance_info), parse_mode=ParseMode.HTML)
 
     # Удаляем информационное сообщение о выполнении операции
     await asyncio.sleep(3)  # Можно добавить небольшую паузу перед удалением сообщения (опционально)

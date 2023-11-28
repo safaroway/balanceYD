@@ -161,17 +161,18 @@ def balance_check():
             report_data_formatted = "0"
 
         if balance <= 0:
-            client_info_string = f'Клиент: {client_info} - Деньги закончились'
+            client_info_string = f'{client_info} - Деньги закончились'
         elif float(report_data_formatted) == 0:
-            client_info_string = f'Клиент: {client_info}. Баланс: {balance} руб. Расходов нет'
+            client_info_string = f'{client_info}: Баланс - {balance}₽. Расходов нет'
         else:
             average_daily_spend = float(report_data_formatted) / 7
             days_remaining = balance / average_daily_spend
-            days_remaining_info = f"Денег хватит на: {days_remaining:.2f} дней."
+            days_remaining_info = f"Денег хватит на {days_remaining:.2f} дней."
             client_info_string = (
-                f'Клиент: {client_info}. Баланс: {balance} руб. Расход за 7 дней: {report_data_formatted} руб. {days_remaining_info}')
+                f'{client_info}: Баланс - {balance}₽. Расход за 7 дней - {report_data_formatted}₽. {days_remaining_info}')
 
         clients_info.append(client_info_string)
+    return clients_info
 
 # Вывод накопленной информации после обработки всех клиентов
 print("\n".join(clients_info))
