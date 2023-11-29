@@ -128,14 +128,14 @@ def process_agency_clients(token):
 
         # Формирование информации о клиенте
         if balance <= 0:
-            client_info_string = f'{client_info} - Деньги закончились'
+            client_info_string = f'<b>{client_info}</b>: <b>Деньги закончились❗</b>'
         elif float(report_data_formatted) == 0:
-            client_info_string = f'{client_info}: Баланс - {balance}₽. Расходов нет'
+            client_info_string = f'<b>{client_info}</b>: Баланс - {balance}₽. Расходов нет❌'
         else:
             average_daily_spend = float(report_data_formatted) / 7
             days_remaining = balance / average_daily_spend
             days_remaining_info = f"Денег хватит на {days_remaining:.2f} дней."
-            client_info_string = f'{client_info}: Баланс - {balance}₽. Расход за 7 дней - {report_data_formatted}₽. {days_remaining_info}'
+            client_info_string = f'<b>{client_info}</b>: Баланс - {balance}₽. Расход за 7 дней - {report_data_formatted}₽. {days_remaining_info}'
 
         clients_info.append(client_info_string)
 
@@ -173,7 +173,7 @@ async def balance_command(message: types.Message):
     await message.answer("\n".join(all_clients_info), parse_mode=ParseMode.HTML)
 
     # Удаляем информационное сообщение о выполнении операции
-    await asyncio.sleep(3)  # Можно добавить небольшую паузу перед удалением сообщения (опционально)
+    await asyncio.sleep(1)  # Можно добавить небольшую паузу перед удалением сообщения (опционально)
     await info_message.delete()
 
 send_message_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
